@@ -14,6 +14,14 @@ return new class extends Migration
         Schema::create('listings', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->string('title');
+            $table->longText('description');
+            $table->json('tags')->nullable();
+            $table->integer('stock')->unsigned()->nullable();
+            $table->decimal('price',8,2)->default(0);
+            $table->string('main_photo')->nullable();
+            $table->string('condition')->nullable();
             $table->timestamps();
         });
     }
