@@ -19,9 +19,13 @@ return new class extends Migration
             $table->longText('description');
             $table->json('tags')->nullable();
             $table->integer('stock')->unsigned()->nullable();
-            $table->decimal('price',8,2)->default(0);
+            $table->decimal('purchased_price',15,2)->default(0);
+            $table->decimal('offer_price',15,2)->default(0);
+            $table->date('purchased_date')->nullable();
+            $table->string('invoice_receipt')->nullable();
             $table->string('main_photo')->nullable();
             $table->string('condition')->nullable();
+            $table->string('status')->default('pending');
             $table->timestamps();
         });
     }

@@ -1,18 +1,21 @@
 <?php
 
-namespace App\Filament\App\Resources;
+namespace App\Filament\Resources;
 
 use Filament\Forms;
+use App\Models\User;
 use Filament\Tables;
+use App\Status;
 use App\Models\Listing;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
 use Filament\Resources\Resource;
+use Filament\Tables\Columns\SelectColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Forms\Components\SpatieTagsInput;
+use App\Filament\Resources\ListingResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\App\Resources\ListingResource\Pages;
-use App\Filament\App\Resources\ListingResource\RelationManagers;
+use App\Filament\Resources\ListingResource\RelationManagers;
 
 class ListingResource extends Resource
 {
@@ -81,38 +84,29 @@ class ListingResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('id'),
-                Tables\Columns\BadgeColumn::make('status')
-                    ->extraAttributes([
-                        'class' => 'capitalize'
-                    ])
-                    ->colors([
-                        'gray' => 'pending',
-                    ]),
+                SelectColumn::make('status')
+                    ->options(Status::class)
+                    ->extraHeaderAttributes(['style' => 'min-width: 200px;']),
+                Tables\Columns\TextColumn::make('user.name')
+                    ->sortable(),
                 Tables\Columns\TextColumn::make('category.name')
-                    ->numeric()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('title')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('stock')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('purchased_price')
+                    ->sortable()
+                    ->prefix('Rs. '),
+                Tables\Columns\TextColumn::make('offer_price')
+                    ->sortable()
+                    ->prefix('Rs. '),
                 Tables\Columns\TextColumn::make('purchased_date')
                     ->date()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('condition')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 //

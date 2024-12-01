@@ -4,11 +4,16 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\Category;
+use App\Models\ListingTag;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Spatie\Tags\HasTags;
 
 class Listing extends Model
 {
+    use HasTags;
+
     /**
      * Get the user that owns the Listing
      *
@@ -28,4 +33,8 @@ class Listing extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    protected $casts = [
+        "tags" => "array",
+    ];
 }
