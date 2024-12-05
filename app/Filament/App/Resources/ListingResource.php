@@ -2,6 +2,7 @@
 
 namespace App\Filament\App\Resources;
 
+use App\Condition;
 use Filament\Forms;
 use Filament\Tables;
 use App\Models\Listing;
@@ -33,6 +34,7 @@ class ListingResource extends Resource
                     ->required()
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')
+                    ->hint('Describe the product in brief.')
                     ->required()
                     ->columnSpanFull()
                     ->autosize(),
@@ -47,33 +49,35 @@ class ListingResource extends Resource
                     ->default(1)
                     ->numeric(),
                 Forms\Components\TextInput::make('purchased_price')
+                    ->hint('Should be the same as presented in receipt.')
                     ->required()
                     ->numeric()
                     ->default(0.00)
                     ->prefix('Rs.'),
                 Forms\Components\TextInput::make('offer_price')
+                    ->hint('Should be less than or equal to Purchased Date')
                     ->required()
+                    ->live()
+                    ->lte('purchased_price')
                     ->numeric()
                     ->default(0.00)
                     ->prefix('Rs.'),
                 Forms\Components\DatePicker::make('purchased_date')
-                    ->required(),
+                    ->required()
+                    ->native(false)
+                    ->firstDayOfWeek(7)
+                    ->closeOnDateSelection()
+                    ->maxDate(now()),
                 Forms\Components\Select::make('condition')
                     ->required()
-                    ->options([
-                        'brand_new' => 'Brand New',
-                        'used_like_new' => 'Used Like New',
-                        'used_not_new' => 'Used not new',
-                        'needs_repair' => 'Needs Repair',
-                        'refurbished' => 'Refurbished',
-                        'old' => 'Old',
-                    ]),
+                    ->options(Condition::class),
                 Forms\Components\FileUpload::make('invoice_receipt')
                     ->directory('listings/invoice-receipts')
                     ->image(),
                 Forms\Components\FileUpload::make('main_photo')
                     ->directory('listings/photos')
-                    ->image(),
+                    ->image()
+                    ->required(),
             ]);
     }
 
@@ -82,13 +86,8 @@ class ListingResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id'),
-                Tables\Columns\BadgeColumn::make('status')
-                    ->extraAttributes([
-                        'class' => 'capitalize'
-                    ])
-                    ->colors([
-                        'gray' => 'pending',
-                    ]),
+                Tables\Columns\TextColumn::make('status')
+                    ->badge(),
                 Tables\Columns\TextColumn::make('category.name')
                     ->numeric()
                     ->sortable(),
@@ -97,14 +96,16 @@ class ListingResource extends Resource
                 Tables\Columns\TextColumn::make('stock')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('price')
-                    ->money()
-                    ->sortable(),
+                Tables\Columns\TextColumn::make('purchased_price')
+                    ->sortable()
+                    ->prefix('Rs. '),
+                Tables\Columns\TextColumn::make('offer_price')
+                    ->sortable()
+                    ->prefix('Rs. '),
                 Tables\Columns\TextColumn::make('purchased_date')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('condition')
-                    ->searchable(),
+                Tables\Columns\BadgeColumn::make('condition'),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

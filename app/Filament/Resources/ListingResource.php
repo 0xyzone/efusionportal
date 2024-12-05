@@ -2,10 +2,11 @@
 
 namespace App\Filament\Resources;
 
+use App\Status;
+use App\Condition;
 use Filament\Forms;
 use App\Models\User;
 use Filament\Tables;
-use App\Status;
 use App\Models\Listing;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
@@ -63,14 +64,7 @@ class ListingResource extends Resource
                     ->required(),
                 Forms\Components\Select::make('condition')
                     ->required()
-                    ->options([
-                        'brand_new' => 'Brand New',
-                        'used_like_new' => 'Used Like New',
-                        'used_not_new' => 'Used not new',
-                        'needs_repair' => 'Needs Repair',
-                        'refurbished' => 'Refurbished',
-                        'old' => 'Old',
-                    ]),
+                    ->options(Condition::class),
                 Forms\Components\FileUpload::make('invoice_receipt')
                     ->directory('listings/invoice-receipts')
                     ->image(),
@@ -105,14 +99,15 @@ class ListingResource extends Resource
                 Tables\Columns\TextColumn::make('purchased_date')
                     ->date()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('condition')
+                Tables\Columns\BadgeColumn::make('condition')
                     ->searchable(),
             ])
             ->filters([
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
+                Tables\Actions\ViewAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -133,7 +128,13 @@ class ListingResource extends Resource
         return [
             'index' => Pages\ListListings::route('/'),
             'create' => Pages\CreateListing::route('/create'),
-            'edit' => Pages\EditListing::route('/{record}/edit'),
         ];
+    }
+
+    public static function canCreate(): bool
+    {
+
+        return false;
+
     }
 }
